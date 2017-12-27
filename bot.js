@@ -230,4 +230,4 @@ client.on('message', message => {
 	}
 });
 
-client.login(config.token);
+client.login(config.version.endsWith('dev') ? config.tokenDev : config.token);
