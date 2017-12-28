@@ -1,12 +1,14 @@
-var config = require('./config.json');
+const version = '0.2-dev'
 const formatter = require('./formatter');
 const untis = require('./untis_module');
 const Discord = require('discord.js');
-const fs = require('fs');
+const io = require('./io.js');
+
+var config = io.loadConfig();
 
 //check config for default token
-if (config.token == 'YOUR-BOT-TOKEN') {
-    console.log('No token in config.json');
+if (config.token == 'YOUR-DISCORD-BOT-TOKEN') {
+    console.log('Please enter your discord token in config.json');
     return;
 }
 
@@ -19,15 +21,12 @@ client.on('ready', () => {
     if (config.upload_icon) {
         client.user.setAvatar(config.icon);
         config.upload_icon = false;
-        fs.writeFile('config.json', JSON.stringify(config, null, 2), (err) => {
-            if (err) throw err;
-            console.log('Saved config.json');
-        });
+        io.saveConfig(config);
     }
 });
 
 client.on('message', message => {
-    if ((message.channel.type != 'text' || config.channels.includes(message.channel.id)) && message.content.substring(0, 1) == '!') {
+    if (message.content.substring(0, 1) == '!') {
         var args = message.content.substring(1).split(' ');
         var cmd = args[0];
 
@@ -35,7 +34,7 @@ client.on('message', message => {
         switch (cmd) {
             case 'v':
             case 'version':
-                message.reply('Version: ' + config.version);
+                message.reply('Version: ' + version);
                 break;
 
             case 'klassen':
@@ -148,41 +147,7 @@ client.on('message', message => {
                 });
                 break;
         }
-    } else if (message.content.substring(0, 2) == '##') {
-        var cmd = message.content.substring(2).split(' ')[0];
-        switch (cmd) {
-            case 'CH_ADD':
-                if (config.channels.includes(message.channel.id)) {
-                    message.reply('Err: Already listening to this channel');
-                    return;
-                }
-                config.channels.push(message.channel.id);
-                message.reply('Done. Saving..');
-                fs.writeFile('config.json', JSON.stringify(config, null, 2), (err) => {
-                    if (err) throw err;
-                    console.log('Saved config.json');
-                    message.reply('Saved.');
-                });
-
-                break;
-
-            case 'CH_REM':
-                if (!config.channels.includes(message.channel.id)) {
-                    message.reply('Err: Not listening to this channel');
-                    return;
-                }
-                config.channels.splice(config.channels.indexOf(message.channel.id), 1);
-                message.reply('Done. Saving..');
-                fs.writeFile('config.json', JSON.stringify(config, null, 2), (err) => {
-                    if (err) throw err;
-                    console.log('Saved config.json');
-                    message.reply('Saved.');
-                });
-                break;
-        }
-    } else if (message.isMemberMentioned(client.user)) {
-        message.reply('Huhu :D');
     }
 });
 
-client.login(config.version.endsWith('dev') ? config.tokenDev : config.token);
+client.login(config.token);
