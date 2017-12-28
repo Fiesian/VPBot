@@ -1,5 +1,7 @@
 const dateNames = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 
+const endOfLine = "\u0010";
+
 exports.formatTime = function(time) {
     var min = (time % 100)
     return Math.floor(time / 100) + ':' + (min < 10 ? '0' : '') + min;
@@ -20,4 +22,8 @@ exports.toDate = function(date) {
 
 exports.getDateName = function(day) {
     return dateNames[day];
+}
+
+exports.formatMessage = function(periods) {
+
 }

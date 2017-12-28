@@ -42,6 +42,7 @@ exports.loadTimetableRaw = function(classId, callback, callbackErr) {
             console.log('Status ' + resp.statusCode + ' (' + resp.statusMessage + ').');
             console.log('Request options: ' + options);
             console.log('Response: ' + resp.headers);
+            callbackErr();
         });
     }).end();
 }
