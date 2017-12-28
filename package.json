@@ -1,10 +1,10 @@
 {
-  "name": "ectest-bot",
-  "version": "1.0.0",
-  "description": "ECTestBot",
-  "main": "bot.js",
-  "author": "Fabian Zwemke",
-  "dependencies": {
-    "discord.js": "^11.2.1"
-  }
+    "name": "vpbot",
+    "version": "0.2-dev",
+    "description": "VPBot",
+    "main": "bot.js",
+    "author": "Fabian Zwemke",
+    "dependencies": {
+        "discord.js": "^11.2.1"
+    }
 }
