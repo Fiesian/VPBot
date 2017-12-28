@@ -1,5 +1,6 @@
 {
     "token": "YOUR-DISCORD-BOT-TOKEN",
     "icon": "./icon.png",
-    "upload_icon": true
+    "upload_icon": true,
+    "trusted_users":[226978525121478656]
 }
