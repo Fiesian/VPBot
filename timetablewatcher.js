@@ -49,12 +49,11 @@ TimetableWatcher.prototype.checkTimetable = function() {
                     console.log('Could not fetch message ' + this._lastMessageSnowflake);
                 });
             }
-            this._discordChannel.send(formatter.formatMessage(filterPeriods)).then(m => {
+            this._discordChannel.send(formatter.formatMessage(filterPeriods, this._subjectMap)).then(m => {
                 this._lastMessageSnowflake = m.id;
             }, () => {
                 this._lastMessageSnowflake = 0;
             });
-            //
         }
         this._lastCheck = filterPeriods;
     }, () => {
