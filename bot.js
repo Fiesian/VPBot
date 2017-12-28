@@ -36,107 +36,109 @@ client.on('ready', () => {
 });
 
 client.on('message', message => {
-            if (message.channel.type == 'dm' && config.trusted_users.includes(message.author.id)) {
-                var args = message.split(' ');
-                var cmd = args[0];
+    if (message.channel.type == 'dm' && config.trusted_users.includes(message.author.id)) {
+        var args = message.split(' ');
+        var cmd = args[0];
 
-                args = args.splice(1);
-                switch (cmd) {
-                    case 'v':
-                    case 'version':
-                        message.reply('Version: ' + version);
-                        break;
+        args = args.splice(1);
+        switch (cmd) {
+            case 'v':
+            case 'version':
+                message.reply('Version: ' + version);
+                break;
 
-                    case 'klassen':
-                        untis.loadClassesRaw(json => {
-                            classes = untis.mapClasses(json);
-                            message.reply(Object.keys(classes).join(', '));
-                        });
-                        break;
+            case 'klassen':
+                untis.loadClassesRaw(json => {
+                    classes = untis.mapClasses(json);
+                    message.reply(Object.keys(classes).join(', '));
+                });
+                break;
 
-                    case 'register':
-                        if (args.length == 2 && (parseInt(args[0]) != NaN) {
-                                var id = parseInt(args[0]);
-                                if (!client.channels.includes(id)) {
-                                    message.reply('Could not find channel ' + id);
-                                    return;
-                                }
-                                if (channelData.hasOwnProperty(id)) {
-                                    message.reply(id + ' is already registered for class ' + channelData[id].className + '.');
-                                    return;
-                                }
+            case 'register':
+                if (args.length == 2 && (parseInt(args[0]) != NaN)) {
+                    var id = parseInt(args[0]);
+                    if (!client.channels.includes(id)) {
+                        message.reply('Could not find channel ' + id);
+                        return;
+                    }
+                    if (channelData.hasOwnProperty(id)) {
+                        message.reply(id + ' is already registered for class ' + channelData[id].className + '.');
+                        return;
+                    }
 
-                                channelData[id] = {
-                                    'className': args[1]
-                                };
-                                io.saveJSONAsync('channels', channelData);
-                                runningTTWs.put(id, new tts.TimetableWatcher(args[1], client.channels.get(id)));
-                                console.log('Registered channel ' + id + ' for ' + args[1])
-                                message.reply('Done.');
-                            } else {
-                                message.reply('*register <id> <className>*');
-                            }
-                        }
-                        break;
-
-                    case 'unregister':
-                        if (args.length == 1 && (parseInt(args[0]) != NaN)) {
-                            var id = parseInt(args[0]);
-                            if (!channelData.hasOwnProperty(id)) {
-                                message.reply(id + ' is not registered.')
-                                return;
-                            }
-                            delete channelData[id];
-                            io.saveJSONAsync('channels', channelData);
-                            if (runningTTWs.has(id)) {
-                                runningTTWs.get(id).stop();
-                                runningTTWs.delete(id);
-                            }
-                            console.log('Unregistered channel ' + id);
-                            message.reply('Done.');
-                        } else {
-                            message.reply('*unregister <id>*');
-                        }
-                        break;
-
-                    case 'stop':
-                        if (args.length == 1 && (parseInt(args[0]) != NaN)) {
-                            var id = parseInt(args[0]);
-                            if (runningTTWs.has(id)) {
-                                runningTTWs.get(id).stop();
-                                runningTTWs.delete(id);
-                                console.log('Stopped channel ' + id);
-                                message.reply('Done.');
-                            } else {
-                                message.reply(id + ' was not running');
-                            }
-                        } else {
-                            message.reply('*stop <id>*');
-                        }
-                        break;
-
-                    case 'stopAll':
-                        runningTTWs.forEach(ttw => ttw.stop());
-                        runningTTWs.clear();
-                        console.log('Stopped all channels');
-                        message.reply('Done.');
-                        break;
-
-                    case 'restart':
-                        client.setGame('Restarting ...');
-                        console.log('Restarting ...');
-                        runningTTWs.forEach(ttw => ttw.stop());
-                        runningTTWs.clear();
-
-                        client.channels.forEach(c => {
-                            if (channelData.hasOwnProperty(c.id)) {
-                                runningTTWs.put(c.id, new tts.TimetableWatcher(channelData[c.id].className, client.channels.get(id)));
-                            }
-                        });
-                        console.log('Restarted.');
-                        client.setGame('VPBot v' + version);
-                        break;
+                    channelData[id] = {
+                        'className': args[1]
+                    };
+                    io.saveJSONAsync('channels', channelData);
+                    runningTTWs.put(id, new tts.TimetableWatcher(args[1], client.channels.get(id)));
+                    console.log('Registered channel ' + id + ' for ' + args[1])
+                    message.reply('Done.');
+                } else {
+                    message.reply('*register <id> <className>*');
                 }
-            });
 
-        client.login(config.token);
+                break;
+
+            case 'unregister':
+                if (args.length == 1 && (parseInt(args[0]) != NaN)) {
+                    var id = parseInt(args[0]);
+                    if (!channelData.hasOwnProperty(id)) {
+                        message.reply(id + ' is not registered.')
+                        return;
+                    }
+                    delete channelData[id];
+                    io.saveJSONAsync('channels', channelData);
+                    if (runningTTWs.has(id)) {
+                        runningTTWs.get(id).stop();
+                        runningTTWs.delete(id);
+                    }
+                    console.log('Unregistered channel ' + id);
+                    message.reply('Done.');
+                } else {
+                    message.reply('*unregister <id>*');
+                }
+                break;
+
+            case 'stop':
+                if (args.length == 1 && (parseInt(args[0]) != NaN)) {
+                    var id = parseInt(args[0]);
+                    if (runningTTWs.has(id)) {
+                        runningTTWs.get(id).stop();
+                        runningTTWs.delete(id);
+                        console.log('Stopped channel ' + id);
+                        message.reply('Done.');
+                    } else {
+                        message.reply(id + ' was not running');
+                    }
+                } else {
+                    message.reply('*stop <id>*');
+                }
+                break;
+
+            case 'stopAll':
+                runningTTWs.forEach(ttw => ttw.stop());
+                runningTTWs.clear();
+                console.log('Stopped all channels');
+                message.reply('Done.');
+                break;
+
+            case 'restart':
+                client.setGame('Restarting ...');
+                console.log('Restarting ...');
+                runningTTWs.forEach(ttw => ttw.stop());
+                runningTTWs.clear();
+
+                client.channels.forEach(c => {
+                    if (channelData.hasOwnProperty(c.id)) {
+                        runningTTWs.put(c.id, new tts.TimetableWatcher(channelData[c.id].className, client.channels.get(id)));
+                    }
+                });
+                console.log('Restarted.');
+                client.setGame('VPBot v' + version);
+                break;
+        }
+    }
+});
+
+
+client.login(config.token);
