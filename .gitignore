@@ -1,0 +1,8 @@
+*.*
+!*.js
+!*.json
+node_modules/
+data/
+config.json
+!icon.png
+!.gitignore
