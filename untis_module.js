@@ -112,6 +112,18 @@ exports.mapClasses = function(json) {
     return map;
 }
 
+exports.retrieveClassId = function(className, callback, callbackErr) {
+    loadClassesRaw(json => {
+        Object.keys(json.data.elements).forEach(key => {
+            if (json.data.elements[key].type == 1 && json.data.elements[key].name == className) {
+                callback(json.data.elements[key].id);
+                return;
+            }
+        })
+        callbackErr();
+    });
+}
+
 exports.filterPeriods = function(json) {
     var classID = json.data.result.data.elementIds[0];
     var periods = json.data.result.data.elementPeriods[classID];
