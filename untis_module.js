@@ -135,7 +135,17 @@ exports.filterPeriods = function(json) {
             filteredPeriods.push(periods[key]);
         }
     });
-
+    filteredPeriods.sort((a, b) => {
+        if (a.date == b.date) {
+            if (a.startTime == b.startTime) {
+                return a.endTime - b.endTime;
+            } else {
+                return a.startTime - b.startTime;
+            }
+        } else {
+            return a.date - b.date;
+        }
+    });
     return filteredPeriods;
 }
 
