@@ -30,7 +30,7 @@ client.on('ready', () => {
     client.user.setGame('VPBot v' + version);
     client.channels.forEach(c => {
         if (channelData.hasOwnProperty(c.id)) {
-            runningTTWs.set(c.id, new TimetableWatcher(channelData[c.id].className, client.channels.get(c.id)));
+            runningTTWs.set(c.id, new TimetableWatcher(channelData[c.id].className, client.channels.get(c.id), config.check_rate));
         }
     });
 });
@@ -69,7 +69,7 @@ client.on('message', message => {
                         'className': args[1]
                     };
                     io.saveJSONAsync('channels', channelData);
-                    runningTTWs.set(args[0], new TimetableWatcher(args[1], client.channels.get(args[0])));
+                    runningTTWs.set(args[0], new TimetableWatcher(channelData[c.id].className, client.channels.get(c.id), config.check_rate));
                     console.log('Registered channel ' + args[0] + ' for ' + args[1])
                     message.reply('Done.');
                 } else {
@@ -127,7 +127,7 @@ client.on('message', message => {
 
                 client.channels.forEach(c => {
                     if (channelData.hasOwnProperty(c.id)) {
-                        runningTTWs.set(c.id, new TimetableWatcher(channelData[c.id].className, client.channels.get(c.id)));
+                        runningTTWs.set(c.id, new TimetableWatcher(channelData[c.id].className, client.channels.get(c.id), config.check_rate));
                     }
                 });
                 console.log('Restarted.');

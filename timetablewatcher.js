@@ -1,12 +1,13 @@
 const untis = require('./untis_module.js');
 const formatter = require('./formatter.js');
 
-function TimetableWatcher(className, discordChannel, autoStart = true) {
+function TimetableWatcher(className, discordChannel, checkRate, autoStart = true) {
     this._task = 0;
     this._discordChannel = discordChannel;
     this._subjectMap = {};
     this._lastCheck = {};
     this._lastMessageSnowflake = 0;
+    this._checkRate = checkRate;
     untis.retrieveClassId(className, id => {
         this._classId = id;
         if (autoStart) {
@@ -26,7 +27,8 @@ TimetableWatcher.prototype.start = function() {
         return;
     }
     this.checkTimetable();
-    this._task = setInterval(this.checkTimetable.bind(this), 60000);
+    console.log('[TTW] Starting TTW task for channel ' + this._discordChannel.id + ' (will be executed every ' + this._checkRate + 's).')
+    this._task = setInterval(this.checkTimetable.bind(this), this._checkRate * 1000);
 };
 
 TimetableWatcher.prototype.stop = function() {
