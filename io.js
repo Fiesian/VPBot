@@ -7,19 +7,22 @@ exports.loadJSONSync = function(name) {
     var json = '{}';
     if (fs.existsSync('./data/' + name + '.json')) {
         json = fs.readFileSync('./data/' + name + '.json');
+        if (json == '') {
+            json = '{}';
+        }
     }
     console.log('[IO] Loaded ' + name + '.json');
     return JSON.parse(json);
 }
 
-exports.writeJSONAsync = function(name, data) {
+exports.saveJSONAsync = function(name, data) {
     fs.writeFile('./data/' + name + '.json', JSON.stringify(data, null, 2), (err) => {
         if (err) throw err;
         console.log('[IO] Saved ' + name + '.json');
     });
 }
 
-exports.writeJSONSync = function(name, data) {
+exports.saveJSONSync = function(name, data) {
     fs.writeFileSync('./data/' + name + '.json', JSON.stringify(data, null, 2));
     console.log('[IO] Saved ' + name + '.json');
 }

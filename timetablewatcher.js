@@ -14,7 +14,7 @@ function TimetableWatcher(className, discordChannel, autoStart = true) {
         }
     }, () => {
         console.log('Could not retrieve classId for ' + className);
-    })
+    });
 }
 
 TimetableWatcher.prototype.isRunning = function() {
@@ -22,14 +22,14 @@ TimetableWatcher.prototype.isRunning = function() {
 };
 
 TimetableWatcher.prototype.start = function() {
-    if (isRunning()) {
+    if (this.isRunning()) {
         return;
     }
     this._task = setInterval(TimetableWatcher.prototype.checkTimetable, 600000);
 };
 
 TimetableWatcher.prototype.stop = function() {
-    if (!isRunning()) {
+    if (!this.isRunning()) {
         return;
     }
     clearInterval(this._task);

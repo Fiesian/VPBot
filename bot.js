@@ -3,7 +3,7 @@ const formatter = require('./formatter');
 const untis = require('./untis_module');
 const Discord = require('discord.js');
 const io = require('./io.js');
-const ttw = require('./timetablewatcher.js');
+const TimetableWatcher = require('./timetablewatcher.js');
 
 var config = io.loadConfig();
 var channelData = io.loadJSONSync('channels');
@@ -30,14 +30,14 @@ client.on('ready', () => {
     client.user.setGame('VPBot v' + version);
     client.channels.forEach(c => {
         if (channelData.hasOwnProperty(c.id)) {
-            runningTTWs.put(c.id, new tts.TimetableWatcher(channelData[c.id].className, client.channels.get(id)));
+            runningTTWs.set(c.id, new TimetableWatcher(channelData[c.id].className, client.channels.get(c.id)));
         }
     });
 });
 
 client.on('message', message => {
     if (message.channel.type == 'dm' && config.trusted_users.includes(message.author.id)) {
-        var args = message.split(' ');
+        var args = message.content.split(' ');
         var cmd = args[0];
 
         args = args.splice(1);
@@ -55,23 +55,22 @@ client.on('message', message => {
                 break;
 
             case 'register':
-                if (args.length == 2 && (parseInt(args[0]) != NaN)) {
-                    var id = parseInt(args[0]);
-                    if (!client.channels.includes(id)) {
-                        message.reply('Could not find channel ' + id);
+                if (args.length == 2) {
+                    if (!client.channels.has(args[0])) {
+                        message.reply('Could not find channel ' + args[0]);
                         return;
                     }
-                    if (channelData.hasOwnProperty(id)) {
-                        message.reply(id + ' is already registered for class ' + channelData[id].className + '.');
+                    if (channelData.hasOwnProperty(args[0])) {
+                        message.reply(args[0] + ' is already registered for class ' + channelData[args[0]].className + '.');
                         return;
                     }
 
-                    channelData[id] = {
+                    channelData[args[0]] = {
                         'className': args[1]
                     };
                     io.saveJSONAsync('channels', channelData);
-                    runningTTWs.put(id, new tts.TimetableWatcher(args[1], client.channels.get(id)));
-                    console.log('Registered channel ' + id + ' for ' + args[1])
+                    runningTTWs.set(args[0], new TimetableWatcher(args[1], client.channels.get(args[0])));
+                    console.log('Registered channel ' + args[0] + ' for ' + args[1])
                     message.reply('Done.');
                 } else {
                     message.reply('*register <id> <className>*');
@@ -80,19 +79,18 @@ client.on('message', message => {
                 break;
 
             case 'unregister':
-                if (args.length == 1 && (parseInt(args[0]) != NaN)) {
-                    var id = parseInt(args[0]);
-                    if (!channelData.hasOwnProperty(id)) {
-                        message.reply(id + ' is not registered.')
+                if (args.length == 1) {
+                    if (!channelData.hasOwnProperty(args[0])) {
+                        message.reply(args[0] + ' is not registered.')
                         return;
                     }
-                    delete channelData[id];
+                    delete channelData[args[0]];
                     io.saveJSONAsync('channels', channelData);
-                    if (runningTTWs.has(id)) {
-                        runningTTWs.get(id).stop();
-                        runningTTWs.delete(id);
+                    if (runningTTWs.has(args[0])) {
+                        runningTTWs.get(args[0]).stop();
+                        runningTTWs.delete(args[0]);
                     }
-                    console.log('Unregistered channel ' + id);
+                    console.log('Unregistered channel ' + args[0]);
                     message.reply('Done.');
                 } else {
                     message.reply('*unregister <id>*');
@@ -100,15 +98,14 @@ client.on('message', message => {
                 break;
 
             case 'stop':
-                if (args.length == 1 && (parseInt(args[0]) != NaN)) {
-                    var id = parseInt(args[0]);
-                    if (runningTTWs.has(id)) {
-                        runningTTWs.get(id).stop();
-                        runningTTWs.delete(id);
-                        console.log('Stopped channel ' + id);
+                if (args.length == 1) {
+                    if (runningTTWs.has(args[0])) {
+                        runningTTWs.get(args[0]).stop();
+                        runningTTWs.delete(args[0]);
+                        console.log('Stopped channel ' + args[0]);
                         message.reply('Done.');
                     } else {
-                        message.reply(id + ' was not running');
+                        message.reply(args[0] + ' is not running');
                     }
                 } else {
                     message.reply('*stop <id>*');
@@ -123,18 +120,18 @@ client.on('message', message => {
                 break;
 
             case 'restart':
-                client.setGame('Restarting ...');
+                client.user.setGame('Restarting ...');
                 console.log('Restarting ...');
                 runningTTWs.forEach(ttw => ttw.stop());
                 runningTTWs.clear();
 
                 client.channels.forEach(c => {
                     if (channelData.hasOwnProperty(c.id)) {
-                        runningTTWs.put(c.id, new tts.TimetableWatcher(channelData[c.id].className, client.channels.get(id)));
+                        runningTTWs.set(c.id, new TimetableWatcher(channelData[c.id].className, client.channels.get(c.id)));
                     }
                 });
                 console.log('Restarted.');
-                client.setGame('VPBot v' + version);
+                client.user.setGame('VPBot v' + version);
                 break;
         }
     }

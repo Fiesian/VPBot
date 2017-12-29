@@ -114,14 +114,16 @@ exports.mapClasses = function(json) {
 }
 
 exports.retrieveClassId = function(className, callback, callbackErr) {
-    loadClassesRaw(json => {
-        Object.keys(json.data.elements).forEach(key => {
-            if (json.data.elements[key].type == 1 && json.data.elements[key].name == className) {
-                callback(json.data.elements[key].id);
-                return;
-            }
-        })
-        callbackErr();
+    exports.loadClassesRaw(json => {
+        if (!Object.keys(json.data.elements).some(key => {
+                if (json.data.elements[key].type == 1 && json.data.elements[key].name == className) {
+                    callback(json.data.elements[key].id);
+                    return true;
+                }
+                return false;
+            })) {
+            callbackErr();
+        }
     });
 }
 
