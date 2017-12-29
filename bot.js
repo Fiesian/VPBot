@@ -4,15 +4,15 @@ const untis = require('./untis_module');
 const Discord = require('discord.js');
 const io = require('./io.js');
 const TimetableWatcher = require('./timetablewatcher.js');
+const config = require('./config/config.js');
 
-var config = io.loadConfig();
 var channelData = io.loadJSONSync('channels');
 
 var runningTTWs = new Map();
 
 //check config for default token
-if (config.token == 'YOUR-DISCORD-BOT-TOKEN') {
-    console.log('Please enter your discord token in config.json');
+if (config.get('token') == 'YOUR-DISCORD-BOT-TOKEN') {
+    console.log('Please enter your discord token in /config/config.json');
     return;
 }
 
@@ -22,21 +22,20 @@ var client = new Discord.Client();
 
 client.on('ready', () => {
     console.log('Connected.');
-    if (config.upload_icon) {
-        client.user.setAvatar(config.icon);
-        config.upload_icon = false;
-        io.saveConfig(config);
+    if (config.get('upload_icon')) {
+        client.user.setAvatar(config.get('icon'));
+        config.set('upload_icon', false);
     }
     client.user.setGame('VPBot v' + version);
     client.channels.forEach(c => {
         if (channelData.hasOwnProperty(c.id)) {
-            runningTTWs.set(c.id, new TimetableWatcher(channelData[c.id].className, client.channels.get(c.id), config.check_rate));
+            runningTTWs.set(c.id, new TimetableWatcher(channelData[c.id].className, client.channels.get(c.id), config.get('check_rate')));
         }
     });
 });
 
 client.on('message', message => {
-    if (message.channel.type == 'dm' && config.trusted_users.includes(message.author.id)) {
+    if (message.channel.type == 'dm' && config.get('trusted_users').includes(message.author.id)) {
         var args = message.content.split(' ');
         var cmd = args[0];
 
@@ -69,7 +68,7 @@ client.on('message', message => {
                         'className': args[1]
                     };
                     io.saveJSONAsync('channels', channelData);
-                    runningTTWs.set(args[0], new TimetableWatcher(channelData[c.id].className, client.channels.get(c.id), config.check_rate));
+                    runningTTWs.set(args[0], new TimetableWatcher(channelData[c.id].className, client.channels.get(c.id), config.get('check_rate)')));
                     console.log('Registered channel ' + args[0] + ' for ' + args[1])
                     message.reply('Done.');
                 } else {
@@ -127,7 +126,7 @@ client.on('message', message => {
 
                 client.channels.forEach(c => {
                     if (channelData.hasOwnProperty(c.id)) {
-                        runningTTWs.set(c.id, new TimetableWatcher(channelData[c.id].className, client.channels.get(c.id), config.check_rate));
+                        runningTTWs.set(c.id, new TimetableWatcher(channelData[c.id].className, client.channels.get(c.id), config.get('check_rate')));
                     }
                 });
                 console.log('Restarted.');
@@ -138,4 +137,4 @@ client.on('message', message => {
 });
 
 
-client.login(config.token);
+client.login(config.get('token'));
