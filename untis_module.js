@@ -1,7 +1,9 @@
 const https = require("https");
+const config = require("./config/config.js");
 
 exports.loadTimetableRaw = function(classId, callback, callbackErr) {
     var date = new Date();
+    date.setDate(date.getDate() + config.get('dev_shift_days')); //For debugging
     if (date.getDay() == 6 || date.getDay() == 0 || (date.getDay == 5 && date.getHour() >= 14)) {
         var dateString = [date.getFullYear(), ((date.getMonth() + 1 > 9 ? '' : '0') + (date.getMonth() + 1)), ((date.getDate() > 9 ? '' : '0') + (date.getDate() + 3))].join('-');
     } else {

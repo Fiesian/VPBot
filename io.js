@@ -47,5 +47,5 @@ exports.loadConfig = function() {
 }
 
 exports.loadDefaultConfig = function() {
-    return fs.readFileSync('./config/default_config.json');
+    return JSON.parse(fs.readFileSync('./config/default_config.json'));
 }

@@ -1,4 +1,5 @@
 const dateNames = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+const untis = require('./untis_module.js');
 
 exports.formatTime = function(time) {
     var min = (time % 100)
@@ -42,10 +43,11 @@ exports.formatMessage = function(periods, subjectMap) {
     }
     var lastDay = -1;
     periods.forEach(p => {
-        var date = toDate(p.date);
+        var date = exports.toDate(p.date);
         if (date.getTime() >= Date.now()) {
             if (lastDay != date.getDay()) {
-                m += '\n **' + getDateName(date.getDay()) + '**';
+                m += '\n **' + exports.getDateName(date.getDay()) + '**';
+                lastDay = date.getDay();
             }
             var subject = untis.findPeriodSubject(p); //Subject id
             if (subject == false) { //no subject
@@ -59,7 +61,7 @@ exports.formatMessage = function(periods, subjectMap) {
             } else {
                 m += '\n  *Fach #' + subject + '* ';
             }
-            m += 'wird von ' + formatTime(p.startTime) + ' bis ' + formatTime(p.endTime) + ' ';
+            m += 'wird von ' + exports.formatTime(p.startTime) + ' bis ' + exports.formatTime(p.endTime) + ' ';
             switch (p.cellState) {
                 case 'CANCEL':
                     m += 'ausfallen.';
@@ -88,6 +90,6 @@ exports.formatMessage = function(periods, subjectMap) {
                 m += ' (' + p.periodText + ')';
             }
         }
-        return m;
     });
+    return m;
 }
