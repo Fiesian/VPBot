@@ -1,7 +1,5 @@
 const dateNames = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 
-const endOfLine = "\u0010";
-
 exports.formatTime = function(time) {
     var min = (time % 100)
     return Math.floor(time / 100) + ':' + (min < 10 ? '0' : '') + min;
@@ -40,26 +38,26 @@ exports.formatMessage = function(periods, subjectMap) {
     var m = '__**Vertretungsplan**__';
 
     if (periods.length == 0) {
-        return m + endOfLine + '*Der Vertretungsplan ist leer.*';
+        return m + '\n *Der Vertretungsplan ist leer.*';
     }
     var lastDay = -1;
     periods.forEach(p => {
         var date = toDate(p.date);
         if (date.getTime() >= Date.now()) {
             if (lastDay != date.getDay()) {
-                m += endOfLine + '**' + getDateName(date.getDay()) + '**';
+                m += '\n **' + getDateName(date.getDay()) + '**';
             }
             var subject = untis.findPeriodSubject(p); //Subject id
             if (subject == false) { //no subject
                 if (p.hasPeriodText) {
-                    m += endOfLine + '  "' + p.periodText + '" ';
+                    m += '\n  "' + p.periodText + '" ';
                 } else {
-                    m += endOfLine + '*Etwas* ';
+                    m += '\n  *Etwas* ';
                 }
             } else if (subjectMap.hasOwnProperty(subject)) {
-                m += subjectMap[subject] + ' ';
+                m += '\n  ' + subjectMap[subject] + ' ';
             } else {
-                m += '*Fach #' + subject + '* ';
+                m += '\n  *Fach #' + subject + '* ';
             }
             m += 'wird von ' + formatTime(p.startTime) + ' bis ' + formatTime(p.endTime) + ' ';
             switch (p.cellState) {

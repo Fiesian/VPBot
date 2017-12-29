@@ -25,7 +25,8 @@ TimetableWatcher.prototype.start = function() {
     if (this.isRunning()) {
         return;
     }
-    this._task = setInterval(TimetableWatcher.prototype.checkTimetable, 600000);
+    this.checkTimetable();
+    this._task = setInterval(this.checkTimetable.bind(this), 60000);
 };
 
 TimetableWatcher.prototype.stop = function() {
@@ -41,7 +42,7 @@ TimetableWatcher.prototype.checkTimetable = function() {
         this._subjectMap = untis.mapSubjects(json);
         var filteredPeriods = untis.filterPeriods(json);
 
-        if (this._lastCheck.length != filterPeriods.length || !(filterPeriods.every((e, index) => e == this._lastCheck[index]))) {
+        if (this._lastCheck.length != filteredPeriods.length || !(filteredPeriods.every((e, index) => e == this._lastCheck[index]))) {
             if (this._lastMessageSnowflake != 0) {
                 this._discordChannel.fetchMessage(this._lastMessageSnowflake).then(m => {
                     m.delete();
@@ -49,13 +50,13 @@ TimetableWatcher.prototype.checkTimetable = function() {
                     console.log('Could not fetch message ' + this._lastMessageSnowflake);
                 });
             }
-            this._discordChannel.send(formatter.formatMessage(filterPeriods, this._subjectMap)).then(m => {
+            this._discordChannel.send(formatter.formatMessage(filteredPeriods, this._subjectMap)).then(m => {
                 this._lastMessageSnowflake = m.id;
             }, () => {
                 this._lastMessageSnowflake = 0;
             });
         }
-        this._lastCheck = filterPeriods;
+        this._lastCheck = filteredPeriods;
     }, () => {
         console.log('Could not load timetable. Skipping check.');
     })
