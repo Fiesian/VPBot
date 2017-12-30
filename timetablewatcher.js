@@ -41,13 +41,29 @@ TimetableWatcher.prototype.stop = function() {
     this._task = 0;
 };
 
+TimetableWatcher.prototype.isDifferent = function(filteredPeriods, emptyDays){
+  //This is dirty but also easier to debug
+  if(filteredPeriods.length != this._lastCheck.length){
+    return true;
+  }
+  else if(!(filteredPeriods.some((e, i) => e != this._lastCheck[i]))){
+    return false;
+  }
+  else if(!(emptyDays.some((e, i) => e != this._lastEmptyDays[i]))){
+    return false;
+  }
+  else{
+    return true;
+  }
+}
+
 TimetableWatcher.prototype.checkTimetable = function(firstRun = false) {
     untis.loadTimetableRaw(this._classId, json => {
         this._subjectMap = untis.mapSubjects(json);
         var filteredPeriods = untis.filterPeriods(json);
         var emptyDays = untis.mapEmptyDays(json);
 
-        if (firstRun || this._lastCheck.length != filteredPeriods.length || filteredPeriods.some((e, index) => e != this._lastCheck[index]) || emptyDays.some((e, index) => e != this._lastEmptyDays[index])) {
+        if (firstRun || this.isDifferent(filteredPeriods, emptyDays)) {
             if (this._lastMessageSnowflake != 0) {
                 this._discordChannel.fetchMessage(this._lastMessageSnowflake).then(m => {
                     m.delete();
