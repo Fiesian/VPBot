@@ -5,10 +5,11 @@ function TimetableWatcher(className, discordChannel, checkRate, autoStart = true
     this._task = 0;
     this._discordChannel = discordChannel;
     this._subjectMap = {};
-    this._lastCheck = undefined;
-    this._lastEmptyDays = undefined;
+    this._lastCheck = [];
+    this._lastEmptyDays = [];
     this._lastMessageSnowflake = 0;
     this._checkRate = checkRate;
+    this._className = className;
     untis.retrieveClassId(className, id => {
         this._classId = id;
         if (autoStart) {
@@ -54,7 +55,7 @@ TimetableWatcher.prototype.checkTimetable = function(firstRun = false) {
                     console.log('Could not fetch message ' + this._lastMessageSnowflake);
                 });
             }
-            this._discordChannel.send(formatter.formatMessage(filteredPeriods, this._subjectMap, emptyDays)).then(m => {
+            this._discordChannel.send(formatter.formatMessage(filteredPeriods, this._subjectMap, emptyDays, this._className)).then(m => {
                 this._lastMessageSnowflake = m.id;
             }, () => {
                 this._lastMessageSnowflake = 0;

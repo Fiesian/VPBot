@@ -32,7 +32,7 @@ function loopEmptyDays(emptyDays, m) {
     return m;
 }
 
-exports.formatMessage = function(periods, subjectMap, emptyDays) {
+exports.formatMessage = function(periods, subjectMap, emptyDays, className) {
     /* Already sorted in untis_module
     periods.sort((a, b) => {
         if (a.date == b.date) {
@@ -45,7 +45,7 @@ exports.formatMessage = function(periods, subjectMap, emptyDays) {
             return a.date - b.date;
         }
     });*/
-    var m = '__**Vertretungsplan**__';
+    var m = '__**Vertretungsplan ' + className + '**__';
 
     if (periods.length == 0) {
         if (emptyDays.every(e => !e)) {

@@ -68,7 +68,7 @@ client.on('message', message => {
                         'className': args[1]
                     };
                     io.saveJSONAsync('channels', channelData);
-                    runningTTWs.set(args[0], new TimetableWatcher(channelData[c.id].className, client.channels.get(c.id), config.get('check_rate)')));
+                    runningTTWs.set(args[0], new TimetableWatcher(channelData[args[0]].className, client.channels.get(args[0]), config.get('check_rate)')));
                     console.log('Registered channel ' + args[0] + ' for ' + args[1])
                     message.reply('Done.');
                 } else {
@@ -93,6 +93,15 @@ client.on('message', message => {
                     message.reply('Done.');
                 } else {
                     message.reply('*unregister <id>*');
+                }
+                break;
+
+            case 'setshift':
+                if (args.length == 1 && parseInt(args[0]) != NaN) {
+                    config.set('dev_shift_days', parseInt(args[0]));
+                    message.reply('Done.');
+                } else {
+                    message.reply('*setshift <days>');
                 }
                 break;
 
