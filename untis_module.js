@@ -1,5 +1,6 @@
 const https = require("https");
 const config = require("./config/config.js");
+const formatter = require("./formatter.js");
 
 exports.loadTimetableRaw = function(classId, callback, callbackErr) {
     var date = new Date();
@@ -164,4 +165,13 @@ exports.findPeriodSubject = function(period) {
         }
     });
     return id;
+}
+
+exports.mapEmptyDays = function(json) {
+    var a = new Array(true, true, true, true, true);
+    var classID = json.data.result.data.elementIds[0];
+    Object.keys(json.data.result.data.elementPeriods[classID]).forEach(key => {
+        a[formatter.toDate(json.data.result.data.elementPeriods[classID][key].date).getDay() - 1] = false;
+    });
+    return a;
 }

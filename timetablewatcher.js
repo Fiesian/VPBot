@@ -5,7 +5,8 @@ function TimetableWatcher(className, discordChannel, checkRate, autoStart = true
     this._task = 0;
     this._discordChannel = discordChannel;
     this._subjectMap = {};
-    this._lastCheck = {};
+    this._lastCheck = undefined;
+    this._lastEmptyDays = undefined;
     this._lastMessageSnowflake = 0;
     this._checkRate = checkRate;
     untis.retrieveClassId(className, id => {
@@ -26,7 +27,7 @@ TimetableWatcher.prototype.start = function() {
     if (this.isRunning()) {
         return;
     }
-    this.checkTimetable();
+    this.checkTimetable(true);
     console.log('[TTW] Starting TTW task for channel ' + this._discordChannel.id + ' (will be executed every ' + this._checkRate + 's).')
     this._task = setInterval(this.checkTimetable.bind(this), this._checkRate * 1000);
 };
@@ -39,12 +40,13 @@ TimetableWatcher.prototype.stop = function() {
     this._task = 0;
 };
 
-TimetableWatcher.prototype.checkTimetable = function() {
+TimetableWatcher.prototype.checkTimetable = function(firstRun = false) {
     untis.loadTimetableRaw(this._classId, json => {
         this._subjectMap = untis.mapSubjects(json);
         var filteredPeriods = untis.filterPeriods(json);
+        var emptyDays = untis.mapEmptyDays(json);
 
-        if (this._lastCheck.length != filteredPeriods.length || !(filteredPeriods.every((e, index) => e == this._lastCheck[index]))) {
+        if (firstRun || this._lastCheck.length != filteredPeriods.length || filteredPeriods.some((e, index) => e != this._lastCheck[index]) || emptyDays.some((e, index) => e != this._lastEmptyDays[index])) {
             if (this._lastMessageSnowflake != 0) {
                 this._discordChannel.fetchMessage(this._lastMessageSnowflake).then(m => {
                     m.delete();
@@ -52,13 +54,14 @@ TimetableWatcher.prototype.checkTimetable = function() {
                     console.log('Could not fetch message ' + this._lastMessageSnowflake);
                 });
             }
-            this._discordChannel.send(formatter.formatMessage(filteredPeriods, this._subjectMap)).then(m => {
+            this._discordChannel.send(formatter.formatMessage(filteredPeriods, this._subjectMap, emptyDays)).then(m => {
                 this._lastMessageSnowflake = m.id;
             }, () => {
                 this._lastMessageSnowflake = 0;
             });
         }
         this._lastCheck = filteredPeriods;
+        this._lastEmptyDays = emptyDays;
     }, () => {
         console.log('Could not load timetable. Skipping check.');
     })

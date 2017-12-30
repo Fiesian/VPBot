@@ -23,7 +23,16 @@ exports.getDateName = function(day) {
     return dateNames[day];
 }
 
-exports.formatMessage = function(periods, subjectMap) {
+function loopEmptyDays(emptyDays, m) {
+    for (var i = 1; i < 6; i++) {
+        if (emptyDays[i - 1]) {
+            m += '\n **' + exports.getDateName(i) + ': Kein Untericht**';
+        }
+    }
+    return m;
+}
+
+exports.formatMessage = function(periods, subjectMap, emptyDays) {
     /* Already sorted in untis_module
     periods.sort((a, b) => {
         if (a.date == b.date) {
@@ -39,8 +48,17 @@ exports.formatMessage = function(periods, subjectMap) {
     var m = '__**Vertretungsplan**__';
 
     if (periods.length == 0) {
-        return m + '\n *Der Vertretungsplan ist leer.*';
+        if (emptyDays.every(e => !e)) {
+            return m + '\n *Der Vertretungsplan ist leer.*';
+        } else if (emptyDays.every(e => e)) {
+            return m + '\n *Es findet kein Unterricht statt*';
+        } else {
+            m = loopEmptyDays(emptyDays, m);
+            return m;
+        }
     }
+
+    m = loopEmptyDays(emptyDays, m);
     var lastDay = -1;
     periods.forEach(p => {
         var date = exports.toDate(p.date);
