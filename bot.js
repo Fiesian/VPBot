@@ -34,6 +34,7 @@ client.on('ready', () => {
     });
 });
 
+//TODO: Move to DMHandler.js, add permission system
 client.on('message', message => {
     if (message.channel.type == 'dm' && config.get('trusted_users').includes(message.author.id)) {
         var args = message.content.split(' ');
@@ -68,7 +69,7 @@ client.on('message', message => {
                         'className': args[1]
                     };
                     io.saveJSONAsync('channels', channelData);
-                    runningTTWs.set(args[0], new TimetableWatcher(channelData[args[0]].className, client.channels.get(args[0]), config.get('check_rate)')));
+                    runningTTWs.set(args[0], new TimetableWatcher(channelData[args[0]].className, client.channels.get(args[0]), config.get('check_rate')));
                     console.log('Registered channel ' + args[0] + ' for ' + args[1])
                     message.reply('Done.');
                 } else {

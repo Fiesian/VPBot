@@ -24,6 +24,7 @@ exports.getDateName = function(day) {
 }
 
 exports.splitDiscordMessage = function(m) {
+    //FIXME: Discord cuts spaces before first non-space-char
     if (m.length < 2000) {
         return new Array(m);
     } else {
@@ -72,7 +73,7 @@ exports.formatMessage = function(periods, subjectMap, emptyDays, className) {
         if (emptyDays.every(e => !e)) {
             return m + '\n *Der Vertretungsplan ist leer.*';
         } else if (emptyDays.every(e => e)) {
-            return m + '\n *Es findet kein Unterricht statt*';
+            return m + '\n *Es findet kein Unterricht statt.*';
         } else {
             m = loopEmptyDays(emptyDays, m);
             return m;

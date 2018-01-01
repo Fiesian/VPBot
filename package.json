@@ -1,6 +1,6 @@
 {
     "name": "vpbot",
-    "version": "0.2-dev",
+    "version": "1.0.0",
     "description": "VPBot",
     "main": "bot.js",
     "author": "Fabian Zwemke",
