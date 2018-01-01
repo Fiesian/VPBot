@@ -23,6 +23,27 @@ exports.getDateName = function(day) {
     return dateNames[day];
 }
 
+exports.splitDiscordMessage = function(m) {
+    if (m.length < 2000) {
+        return new Array(m);
+    } else {
+        var discordMessages = [];
+        var messageLines = m.split('\n');
+        var currentMessage = messageLines[0];
+        for (var i = 1; i < messageLines.length; i++) {
+            if ((currentMessage + '\n' + messageLines[i]).length < 2000) {
+                currentMessage += '\n' + messageLines[i];
+            } else {
+                //NOTE: Won't work if messageLines[i].length >= 2000
+                discordMessages.push(currentMessage);
+                currentMessage = messageLines[i];
+            }
+        }
+        discordMessages.push(currentMessage);
+        return discordMessages;
+    }
+}
+
 function loopEmptyDays(emptyDays, m) {
     for (var i = 1; i < 6; i++) {
         if (emptyDays[i - 1]) {

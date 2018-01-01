@@ -7,7 +7,7 @@ function TimetableWatcher(className, discordChannel, checkRate, autoStart = true
     this._subjectMap = {};
     this._lastCheck = [];
     this._lastEmptyDays = [];
-    this._lastMessageSnowflake = 0;
+    this._lastMessageSnowflakes = [];
     this._checkRate = checkRate;
     this._className = className;
     untis.retrieveClassId(className, id => {
@@ -41,20 +41,17 @@ TimetableWatcher.prototype.stop = function() {
     this._task = 0;
 };
 
-TimetableWatcher.prototype.isDifferent = function(filteredPeriods, emptyDays){
-  //This is dirty but also easier to debug
-  if(filteredPeriods.length != this._lastCheck.length){
-    return true;
-  }
-  else if(!(filteredPeriods.some((e, i) => e != this._lastCheck[i]))){
-    return false;
-  }
-  else if(!(emptyDays.some((e, i) => e != this._lastEmptyDays[i]))){
-    return false;
-  }
-  else{
-    return true;
-  }
+TimetableWatcher.prototype.isDifferent = function(filteredPeriods, emptyDays) {
+    //This is dirty but also easier to debug
+    if (filteredPeriods.length != this._lastCheck.length) {
+        return true;
+    } else if (!(filteredPeriods.some((e, i) => e != this._lastCheck[i]))) {
+        return false;
+    } else if (!(emptyDays.some((e, i) => e != this._lastEmptyDays[i]))) {
+        return false;
+    } else {
+        return true;
+    }
 }
 
 TimetableWatcher.prototype.checkTimetable = function(firstRun = false) {
@@ -64,18 +61,25 @@ TimetableWatcher.prototype.checkTimetable = function(firstRun = false) {
         var emptyDays = untis.mapEmptyDays(json);
 
         if (firstRun || this.isDifferent(filteredPeriods, emptyDays)) {
-            if (this._lastMessageSnowflake != 0) {
-                this._discordChannel.fetchMessage(this._lastMessageSnowflake).then(m => {
-                    m.delete();
-                }, () => {
-                    console.log('Could not fetch message ' + this._lastMessageSnowflake);
+            if (this._lastMessageSnowflakes.length > 0) {
+                this._lastMessageSnowflakes.forEach(sf => {
+                    this._discordChannel.fetchMessage(sf).then(m => {
+                        m.delete();
+                    }, () => {
+                        console.log('Could not fetch message ' + sf);
+                    });
                 });
             }
-            this._discordChannel.send(formatter.formatMessage(filteredPeriods, this._subjectMap, emptyDays, this._className)).then(m => {
-                this._lastMessageSnowflake = m.id;
-            }, () => {
-                this._lastMessageSnowflake = 0;
+            var messages = formatter.splitDiscordMessage(formatter.formatMessage(filteredPeriods, this._subjectMap, emptyDays, this._className));
+            var messageSnowflakes = [];
+            messages.forEach(message => {
+                this._discordChannel.send(message).then(m => {
+                    messageSnowflakes.push(m.id);
+                }, () => {
+                    console.log('Could not send message ' + m.id + ': "' + message + '"');
+                });
             });
+            this._lastMessageSnowflakes = messageSnowflakes;
         }
         this._lastCheck = filteredPeriods;
         this._lastEmptyDays = emptyDays;
