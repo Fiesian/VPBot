@@ -1,4 +1,4 @@
-const version = '1.0.0'
+const version = '1.0.1'
 const formatter = require('./formatter');
 const untis = require('./untis_module');
 const Discord = require('discord.js');
@@ -27,9 +27,14 @@ client.on('ready', () => {
         config.set('upload_icon', false);
     }
     client.user.setGame('VPBot v' + version);
+    var sneakyStart = config.get("dev_sneaky_start");
+    if (sneakyStart) {
+        console.log("Doing a sneaky start.")
+        config.set("dev_sneaky_start", false);
+    }
     client.channels.forEach(c => {
         if (channelData.hasOwnProperty(c.id)) {
-            runningTTWs.set(c.id, new TimetableWatcher(channelData[c.id].className, client.channels.get(c.id), config.get('check_rate')));
+            runningTTWs.set(c.id, new TimetableWatcher(channelData[c.id].className, client.channels.get(c.id), config.get('check_rate'), true, sneakyStart));
         }
     });
 });
@@ -103,6 +108,24 @@ client.on('message', message => {
                     message.reply('Done.');
                 } else {
                     message.reply('*setshift <days>');
+                }
+                break;
+
+            case 'setlmsf':
+                if (args.length >= 2) {
+                    if (runningTTWs.has(args[0])) {
+                        var sfs = [];
+                        for (var i = 1; i < args.length; i++) {
+                            sfs.push(args[i]);
+                        }
+                        runningTTWs.get(args[0]).setLastMessageSnowflakes(sfs);
+                        console.log('Changed last message snowflakes to [' + sfs.join(', ') + '] for channel ' + args[0]);
+                        message.reply('Done.');
+                    } else {
+                        message.reply(args[0] + ' is not running');
+                    }
+                } else {
+                    message.reply('*setlastmessage <channel id> <message_id>...*');
                 }
                 break;
 

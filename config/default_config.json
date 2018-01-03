@@ -3,6 +3,7 @@
     "icon": "./icon.png",
     "upload_icon": true,
     "check_rate": 600,
-    "trusted_users":["226978525121478656"],
-    "dev_shift_days": 0
+    "trusted_users": ["226978525121478656"],
+    "dev_shift_days": 0,
+    "dev_sneaky_start": false
 }

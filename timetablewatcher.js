@@ -1,7 +1,7 @@
 const untis = require('./untis_module.js');
 const formatter = require('./formatter.js');
 
-function TimetableWatcher(className, discordChannel, checkRate, autoStart = true) {
+function TimetableWatcher(className, discordChannel, checkRate, autoStart = true, sneakyStart = false) {
     this._task = 0;
     this._discordChannel = discordChannel;
     this._subjectMap = {};
@@ -10,6 +10,7 @@ function TimetableWatcher(className, discordChannel, checkRate, autoStart = true
     this._lastMessageSnowflakes = [];
     this._checkRate = checkRate;
     this._className = className;
+    this._sneakyStart = sneakyStart;
     untis.retrieveClassId(className, id => {
         this._classId = id;
         if (autoStart) {
@@ -54,6 +55,10 @@ TimetableWatcher.prototype.isDifferent = function(filteredPeriods, emptyDays) {
     }
 }
 
+TimetableWatcher.prototype.setLastMessageSnowflakes = function(lmSf) {
+    this._lastMessageSnowflakes = lmSf;
+}
+
 TimetableWatcher.prototype.checkTimetable = function(firstRun = false) {
     untis.loadTimetableRaw(this._classId, json => {
         this._subjectMap = untis.mapSubjects(json);
@@ -70,16 +75,18 @@ TimetableWatcher.prototype.checkTimetable = function(firstRun = false) {
                     });
                 });
             }
-            var messages = formatter.splitDiscordMessage(formatter.formatMessage(filteredPeriods, this._subjectMap, emptyDays, this._className));
-            var messageSnowflakes = [];
-            messages.forEach(message => {
-                this._discordChannel.send(message).then(m => {
-                    messageSnowflakes.push(m.id);
-                }, () => {
-                    console.log('Could not send message ' + m.id + ': "' + message + '"');
+            if (!(firstRun && this._sneakyStart)) {
+                var messages = formatter.splitDiscordMessage(formatter.formatMessage(filteredPeriods, this._subjectMap, emptyDays, this._className));
+                var messageSnowflakes = [];
+                messages.forEach(message => {
+                    this._discordChannel.send(message).then(m => {
+                        messageSnowflakes.push(m.id);
+                    }, () => {
+                        console.log('Could not send message ' + m.id + ': "' + message + '"');
+                    });
                 });
-            });
-            this._lastMessageSnowflakes = messageSnowflakes;
+                this._lastMessageSnowflakes = messageSnowflakes;
+            }
         }
         this._lastCheck = filteredPeriods;
         this._lastEmptyDays = emptyDays;
