@@ -1,4 +1,4 @@
-const version = '1.0.1'
+const version = '1.0.2'
 const formatter = require('./formatter');
 const untis = require('./untis_module');
 const Discord = require('discord.js');
@@ -166,6 +166,8 @@ client.on('message', message => {
                 client.user.setGame('VPBot v' + version);
                 break;
         }
+    } else if (message.channel.type == 'dm' && message.content == 'ping') {
+        message.reply('pong');
     }
 });
 
