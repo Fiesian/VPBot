@@ -1,4 +1,4 @@
-const version = '1.0.2'
+const version = '1.0.3';
 const formatter = require('./formatter');
 const untis = require('./untis_module');
 const Discord = require('discord.js');
