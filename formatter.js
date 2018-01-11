@@ -84,7 +84,8 @@ exports.formatMessage = function(periods, subjectMap, emptyDays, className) {
     var lastDay = -1;
     periods.forEach(p => {
         var date = exports.toDate(p.date);
-        if (date.getTime() >= Date.now()) {
+        //HOTFIX 1.0.4
+        if (true /*date.getTime() >= Date.now()*/) {
             if (lastDay != date.getDay()) {
                 m += '\n **' + exports.getDateName(date.getDay()) + '**';
                 lastDay = date.getDay();
