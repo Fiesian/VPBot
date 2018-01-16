@@ -1,10 +1,10 @@
 const https = require("https");
 const config = require("./config/config.js");
 const formatter = require("./formatter.js");
+const bot = require("./bot.js");
 
 exports.loadTimetableRaw = function(classId, callback, callbackErr) {
-    var date = new Date();
-    date.setDate(date.getDate() + config.get('dev_shift_days')); //For debugging
+    var date = bot.getEffectiveDate();
     if (date.getDay() == 6 || date.getDay() == 0 || (date.getDay() == 5 && date.getHours() >= 14)) {
         var dateString = [date.getFullYear(), ((date.getMonth() + 1 > 9 ? '' : '0') + (date.getMonth() + 1)), ((date.getDate() > 9 ? '' : '0') + (date.getDate() + 3))].join('-');
     } else {
@@ -40,8 +40,8 @@ exports.loadTimetableRaw = function(classId, callback, callbackErr) {
             callback(JSON.parse(data));
         });
 
-        resp.on('err', e => {
-            console.log('Error: ' + e.message);
+        resp.on('error', e => {
+            console.error(e);
             console.log('Status ' + resp.statusCode + ' (' + resp.statusMessage + ').');
             console.log('Request options: ' + options);
             console.log('Response: ' + resp.headers);
@@ -52,7 +52,7 @@ exports.loadTimetableRaw = function(classId, callback, callbackErr) {
 
 exports.loadClassesRaw = function(callback) {
     //https://mese.webuntis.com/WebUntis/api/public/timetable/weekly/pageconfig?type=1&id=123&date=2017-12-10&formatId=1
-    var date = new Date();
+    var date = bot.getEffectiveDate();
     if (date.getDay() == 6 || date.getDay() == 0 || (date.getDay() == 5 && date.getHours() >= 14)) {
         var dateString = [date.getFullYear(), ((date.getMonth() + 1 > 9 ? '' : '0') + (date.getMonth() + 1)), ((date.getDate() > 9 ? '' : '0') + (date.getDate() + 3))].join('-');
     } else {
@@ -85,8 +85,8 @@ exports.loadClassesRaw = function(callback) {
             callback(JSON.parse(data));
         });
 
-        resp.on('err', e => {
-            console.log('Error: ' + e.message);
+        resp.on('error', e => {
+            console.error(e);
             console.log('Status ' + resp.statusCode + ' (' + resp.statusMessage + ').');
             console.log('Request options: ' + options);
             console.log('Response: ' + resp.headers);
