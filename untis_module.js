@@ -40,8 +40,8 @@ exports.loadTimetableRaw = function(classId, callback, callbackErr) {
             callback(JSON.parse(data));
         });
 
-        resp.on('err', e => {
-            console.log('Error: ' + e.message);
+        resp.on('error', e => {
+            console.error(e);
             console.log('Status ' + resp.statusCode + ' (' + resp.statusMessage + ').');
             console.log('Request options: ' + options);
             console.log('Response: ' + resp.headers);
@@ -85,8 +85,8 @@ exports.loadClassesRaw = function(callback) {
             callback(JSON.parse(data));
         });
 
-        resp.on('err', e => {
-            console.log('Error: ' + e.message);
+        resp.on('error', e => {
+            console.error(e);
             console.log('Status ' + resp.statusCode + ' (' + resp.statusMessage + ').');
             console.log('Request options: ' + options);
             console.log('Response: ' + resp.headers);
