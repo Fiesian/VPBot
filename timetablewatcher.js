@@ -46,9 +46,9 @@ TimetableWatcher.prototype.isDifferent = function(filteredPeriods, emptyDays) {
     //This is dirty but also easier to debug
     if (filteredPeriods.length != this._lastCheck.length) {
         return true;
-    } else if (filteredPeriods.some((e, i) => e != this._lastCheck[i]), this) {
+    } else if (filteredPeriods.some((e, i) => e != this._lastCheck[i], this)) {
         return true;
-    } else if (emptyDays.some((e, i) => e != this._lastEmptyDays[i]), this) {
+    } else if (emptyDays.some((e, i) => e != this._lastEmptyDays[i], this)) {
         return true;
     } else {
         return false;
